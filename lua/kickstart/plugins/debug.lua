@@ -23,8 +23,9 @@ return {
   },
   config = function()
     local dap = require 'dap'
+    local mason_dap = require 'mason-nvim-dap'
 
-    require('mason-nvim-dap').setup {
+    mason_dap.setup {
       automatic_installation = true,
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
@@ -44,6 +45,7 @@ return {
 
     -- Basic debbgging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
+    vim.keymap.set('n', '<F4>', dap.terminate, { desc = 'Debug: Terminate session' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
     vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
     vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
@@ -51,6 +53,43 @@ return {
     vim.keymap.set('n', '<leader>B', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, { desc = 'Debug: Set Breakpoint' })
+
+    -- CPP debugger setup for the MeshAndTaskShaders project
+    --
+    vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DiagnosticSignError', linehl = '', numhl = '' })
+    --
+    dap.adapters.cppdbg = {
+      type = 'executable',
+      command = '/home/oem/.local/share/nvim/mason/bin/OpenDebugAD7',
+      id = 'cppdbg',
+    }
+
+    dap.configurations.cpp = {
+      {
+        name = '(gdb) Launch',
+        type = 'cppdbg',
+        request = 'launch',
+        program = '${workspaceFolder}/bin/Debug-linux-x86_64/MeshAndTaskShaders/MeshAndTaskShaders',
+        args = {},
+        stopAtEntry = false,
+        cwd = '${workspaceFolder}',
+        environment = {},
+        MIMode = 'gdb',
+        preLaunchTask = './BuildAndCompile.sh',
+        setupCommands = {
+          {
+            description = 'Enable pretty-printing for gdb',
+            text = '-enable-pretty-printing',
+            ignoreFailures = true,
+          },
+          {
+            description = 'Set Disassembly Flavor to Intel',
+            text = '-gdb-set disassembly-flavor intel',
+            ignoreFailures = true,
+          },
+        },
+      },
+    }
 
     -- Install golang specific config
     require('dap-go').setup()

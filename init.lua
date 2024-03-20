@@ -148,6 +148,7 @@ vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
+vim.opt.cursorlineopt = 'number'
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
@@ -167,11 +168,12 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagn
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 -- Move cursor in insert mode
-vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Go to previous [D]iagnostic message' })
-vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Move cursor left in insert mode' })
+vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Move cursor down in insert mode' })
+vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up in insert mode' })
+vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor right in insert mode' })
 
+vim.keymap.set('n', '<C-c>', '<cmd> %y+ <CR>', { desc = 'Copy whole file' })
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -188,7 +190,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
---
+
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -470,7 +472,9 @@ require('lazy').setup({
     },
     config = function()
       -- Brief Aside: **What is LSP?**
-      --
+
+      vim.keymap.set('n', '<leader>cs', '<cmd>ClangdSwitchSourceHeader<CR>', { desc = 'Switch between header and source file in C++' })
+
       -- LSP is an acronym you've probably heard, but might not understand what it is.
       --
       -- LSP stands for Language Server Protocol. It's a protocol that helps editors
@@ -659,6 +663,9 @@ require('lazy').setup({
       },
       formatters_by_ft = {
         lua = { 'stylua' },
+        javascript = { 'prettierd' },
+        typescript = { 'prettierd' },
+        typescriptreact = { 'prettierd' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -790,6 +797,28 @@ require('lazy').setup({
 
       -- You can configure highlights by doing something like
       vim.cmd.hi 'Comment gui=none'
+
+      vim.cmd 'hi LineNr guibg=none guifg=#4F4F4F'
+      vim.cmd 'hi CursorLineNr guibg=none guifg=#7F7F7F'
+
+      require('everblush').setup {
+        {
+          -- Default options
+          transparent_background = false,
+
+          -- Configuration examples
+
+          -- Override the default highlights using Everblush or other colors
+          override = {
+            LineNr = { guifg = '#FFFFFF', guibg = '#FFFFFFF' },
+          },
+
+          -- Set contrast for nvim-tree highlights
+          nvim_tree = {
+            contrast = true,
+          },
+        },
+      }
     end,
   },
 
