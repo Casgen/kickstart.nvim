@@ -181,6 +181,7 @@ vim.keymap.set('n', '<C-c>', '<cmd> %y+ <CR>', { desc = 'Copy whole file' })
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<A-i>', '<cmd>ToggleTermToggleAll<CR>', { desc = 'Toggle terminal' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -299,15 +300,38 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
+
+    config = function()
+      require('gitsigns').setup {
+        signs = {
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+        },
+      }
+
+      vim.keymap.set('n', ']c', function()
+        if vim.wo.diff then
+          return ']c'
+        end
+        vim.schedule(function()
+          require('gitsigns.actions').next_hunk()
+        end)
+        return '<Ignore>'
+      end, { expr = true })
+
+      vim.keymap.set('n', '[c', function()
+        if vim.wo.diff then
+          return '[c'
+        end
+        vim.schedule(function()
+          require('gitsigns.actions').prev_hunk()
+        end)
+        return '<Ignore>'
+      end, { expr = true })
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run lua code when they are loaded.
@@ -428,6 +452,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>f/', function()
