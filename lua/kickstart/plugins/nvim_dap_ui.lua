@@ -13,6 +13,11 @@ return {
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
     vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
 
+    vim.keymap.set('n', '<leader>de', "<cmd>require('dapui').eval()<CR>", { desc = 'Evaluate expression' })
+    vim.keymap.set('n', '<leader>dh', require('dap.ui.widgets').hover, { desc = 'Hover element' })
+    vim.keymap.set('n', '<leader>dp', require('dap.ui.widgets').preview, { desc = 'Preview element' })
+    vim.keymap.set('n', '<leader>df', "<cmd>require('dap.ui.widgets').float()<CR>", { desc = 'Float element' })
+
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = function()
       dapui.close()

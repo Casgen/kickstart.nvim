@@ -174,6 +174,13 @@ vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up in insert mode' })
 vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor right in insert mode' })
 
 vim.keymap.set('n', '<C-c>', '<cmd> %y+ <CR>', { desc = 'Copy whole file' })
+
+-- Window resizing
+vim.keymap.set('n', '<C-Left>', '<cmd>vertical resize -2<CR>', { desc = 'Shrink window horizontally' })
+vim.keymap.set('n', '<C-Right>', '<cmd>vertical resize +2<CR>', { desc = 'Expand window horizontally' })
+vim.keymap.set('n', '<C-Up>', '<cmd>resize -2<CR>', { desc = 'Shring window vertically' })
+vim.keymap.set('n', '<C-Down>', '<cmd>resize +2<CR>', { desc = 'Expand window vertically' })
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -205,7 +212,8 @@ vim.keymap.set('n', '<C-j>', '<Down>', { desc = 'Move cursor left in Insert mode
 vim.keymap.set('n', '<C-k>', '<Up>', { desc = 'Move focus to the upper window' })
 
 -- Better paste (duh)
-vim.keymap.set('v', 'p', '"_dP', { desc = 'Better pase' })
+vim.keymap.set('v', 'p', '"_dP', { desc = 'Better paste' })
+vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 
 vim.keymap.set('v', '<', '<gv', { desc = 'Tab right and stay in indent mode' })
 vim.keymap.set('v', '>', '>gv', { desc = 'Tab left and stay in indent mode' })
@@ -620,6 +628,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
+        ols = {},
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -691,6 +700,7 @@ require('lazy').setup({
         javascript = { 'prettierd' },
         typescript = { 'prettierd' },
         typescriptreact = { 'prettierd' },
+        cpp = { 'clang_format' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --

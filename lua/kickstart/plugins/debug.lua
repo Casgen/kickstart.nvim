@@ -64,6 +64,17 @@ return {
       id = 'cppdbg',
     }
 
+    dap.configurations.odin = {
+      {
+        type = 'codelldb',
+        name = 'Run 8086-sim',
+        request = 'launch',
+        program = '${workspaceFolder}/build/8086sim',
+        args = {},
+        cwd = '${workspaceFolder}',
+      },
+    }
+
     dap.configurations.cpp = {
       {
         name = '(gdb) Launch',
