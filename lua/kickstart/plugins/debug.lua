@@ -44,11 +44,12 @@ return {
     }
 
     -- Basic debbgging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
-    vim.keymap.set('n', '<F4>', dap.terminate, { desc = 'Debug: Terminate session' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
     vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
     vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
+    vim.keymap.set('n', '<F4>', dap.run_to_cursor, { desc = 'Debug: Run to cursor' })
+    vim.keymap.set('n', '<F5>', dap.terminate, { desc = 'Debug: Terminate session' })
+    vim.keymap.set('n', '<F6>', dap.continue, { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
     vim.keymap.set('n', '<leader>B', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
@@ -62,6 +63,24 @@ return {
       type = 'executable',
       command = '/home/oem/.local/share/nvim/mason/bin/OpenDebugAD7',
       id = 'cppdbg',
+    }
+
+    dap.adapters.python = {
+      type = 'executable',
+      command = 'python3',
+      args = { '-m', 'debugpy.adapter' },
+    }
+
+    dap.configurations.python = {
+      {
+        name = 'Python: Current File',
+        type = 'python',
+        request = 'launch',
+        program = '${file}',
+        console = 'integratedTerminal',
+        cwd = '${workspaceFolder}',
+        justMyCode = true,
+      },
     }
 
     dap.configurations.odin = {

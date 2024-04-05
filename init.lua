@@ -162,6 +162,8 @@ vim.opt.softtabstop = 4
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+vim.opt.formatoptions:remove { 'c', 'r', 'o' }
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
@@ -213,10 +215,14 @@ vim.keymap.set('n', '<C-k>', '<Up>', { desc = 'Move focus to the upper window' }
 
 -- Better paste (duh)
 vim.keymap.set('v', 'p', '"_dP', { desc = 'Better paste' })
-vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close current buffer' })
+vim.keymap.set('n', '<leader>xb', '<cmd>bd<CR>', { desc = 'Close current buffer' })
+vim.keymap.set('n', '<leader>x', '<cmd>wq<CR>', { desc = 'Close current window' })
 
 vim.keymap.set('v', '<', '<gv', { desc = 'Tab right and stay in indent mode' })
 vim.keymap.set('v', '>', '>gv', { desc = 'Tab left and stay in indent mode' })
+
+-- Navigating previously used buffers
+vim.keymap.set('n', '[b', '<cmd>b#<CR>', { desc = 'Navigate through previously used buffers' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -507,6 +513,7 @@ require('lazy').setup({
       -- Brief Aside: **What is LSP?**
 
       vim.keymap.set('n', '<leader>cs', '<cmd>ClangdSwitchSourceHeader<CR>', { desc = 'Switch between header and source file in C++' })
+      vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, { desc = 'Signature help' })
 
       -- LSP is an acronym you've probably heard, but might not understand what it is.
       --
@@ -575,7 +582,10 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor
           --  Most Language Servers support renaming across files, etc.
-          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>rn', function()
+            vim.lsp.buf.rename()
+            vim.cmd 'wa'
+          end, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
@@ -626,10 +636,11 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         ols = {},
-        -- pyright = {},
+        pyright = {},
+        glsl_analyzer = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -689,26 +700,35 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    opts = {
-      notify_on_error = false,
-      format_on_save = {
-        timeout_ms = 500,
-        lsp_fallback = true,
-      },
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        javascript = { 'prettierd' },
-        typescript = { 'prettierd' },
-        typescriptreact = { 'prettierd' },
-        cpp = { 'clang_format' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use a sub-list to tell conform to run *until* a formatter
-        -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
-      },
-    },
+    config = function()
+      require('conform').setup {
+        notify_on_error = false,
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_fallback = true,
+        },
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          javascript = { 'prettierd' },
+          typescript = { 'prettierd' },
+          typescriptreact = { 'prettierd' },
+          cpp = { 'clang_format' },
+          python = { 'black' },
+          -- Conform can also run multiple formatters sequentially
+          -- python = { "isort", "black" },
+          --
+          -- You can use a sub-list to tell conform to run *until* a formatter
+          -- is found.
+          -- javascript = { { "prettierd", "prettier" } },
+        },
+      }
+
+      require('conform').formatters.prettierd = {
+        env = {
+          PRETTIERD_DEFAULT_CONFIG = vim.fn.getcwd() .. '/.prettierrc.js',
+        },
+      }
+    end,
   },
 
   { -- Autocompletion
@@ -901,6 +921,8 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
+
+      vim.treesitter.language.register('glsl', { 'nv.mesh', 'nv.task', 'mesh', 'task', 'frag', 'vert', 'tesc', 'tese', 'geom', 'comp' })
 
       -- There are additional nvim-treesitter modules that you can use to interact
       -- with nvim-treesitter. You should go explore a few and see what interests you:
