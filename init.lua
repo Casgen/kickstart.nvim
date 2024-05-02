@@ -155,12 +155,18 @@ vim.opt.scrolloff = 10
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
+vim.g.XkbSwitchEnabled = 1
+vim.g.XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
+
+vim.wo.conceallevel = 1
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set('n', '<leader>hl', '<cmd>set hlsearch<CR>')
 
 vim.opt.formatoptions:remove { 'c', 'r', 'o' }
 
@@ -169,6 +175,7 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
 -- Move cursor in insert mode
 vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Move cursor left in insert mode' })
 vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Move cursor down in insert mode' })
@@ -176,6 +183,10 @@ vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up in insert mode' })
 vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor right in insert mode' })
 
 vim.keymap.set('n', '<C-c>', '<cmd> %y+ <CR>', { desc = 'Copy whole file' })
+
+-- Quickfix list commands
+vim.keymap.set('n', '<leader>cn', '<cmd>cnext<CR>', { desc = 'Go to next reference in Quickfix list' })
+vim.keymap.set('n', '<leader>cp', '<cmd>cprev<CR>', { desc = 'Go to previous reference in Quickfix list' })
 
 -- Window resizing
 vim.keymap.set('n', '<C-Left>', '<cmd>vertical resize -2<CR>', { desc = 'Shrink window horizontally' })
@@ -207,11 +218,9 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- Ability to move cursor in insert mode
-vim.keymap.set('n', '<C-h>', '<Left>', { desc = 'Move cursor left in Insert mode' })
-vim.keymap.set('n', '<C-l>', '<Right>', { desc = 'Move cursor left in Insert mode' })
-vim.keymap.set('n', '<C-j>', '<Down>', { desc = 'Move cursor left in Insert mode' })
-vim.keymap.set('n', '<C-k>', '<Up>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', 'k', 'gk', { desc = 'Move cursor up respecting wrap' })
+vim.keymap.set('n', 'j', 'gj', { desc = 'Move cursor down respecting wrap' })
+vim.keymap.set('n', '<C-b>', 'ge', { desc = 'Move cursor by a word to the left leaving the cursor at the last word char.' })
 
 -- Better paste (duh)
 vim.keymap.set('v', 'p', '"_dP', { desc = 'Better paste' })
@@ -436,12 +445,12 @@ require('lazy').setup({
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+
+        defaults = {
+          mappings = {
+            n = { ['dd'] = require('telescope.actions').delete_buffer },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -466,6 +475,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
       vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
 
       -- Slightly advanced example of overriding default behavior and theme
@@ -637,10 +647,13 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         clangd = {},
-        -- gopls = {},
+        markdownlint = {},
+        gopls = {},
+        cssls = {},
         ols = {},
         pyright = {},
         glsl_analyzer = {},
+        texlab = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -713,7 +726,9 @@ require('lazy').setup({
           typescript = { 'prettierd' },
           typescriptreact = { 'prettierd' },
           cpp = { 'clang_format' },
+          css = { 'prettied' },
           python = { 'black' },
+          markdown = { 'markdownlint' },
           -- Conform can also run multiple formatters sequentially
           -- python = { "isort", "black" },
           --
@@ -932,7 +947,6 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
-
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- put them in the right spots if you want.
@@ -941,11 +955,9 @@ require('lazy').setup({
   --
   --  Here are some example plugins that I've included in the kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.nvim_dap_ui',
   -- require 'kickstart.plugins.indent_line',
-
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --

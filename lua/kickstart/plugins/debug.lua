@@ -71,6 +71,15 @@ return {
       args = { '-m', 'debugpy.adapter' },
     }
 
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = '13000',
+      executable = {
+        command = '/home/oem/.local/share/nvim/mason/bin/codelldb',
+        args = { '--port', '13000' },
+      },
+    }
+
     dap.configurations.python = {
       {
         name = 'Python: Current File',

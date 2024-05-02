@@ -55,7 +55,14 @@ return {
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
-    opts = {},
+
+    config = function()
+      require('lualine').setup {
+        sections = {
+          lualine_b = { 'grapple' },
+        },
+      }
+    end,
   },
   {
     'windwp/nvim-autopairs',
@@ -95,6 +102,75 @@ return {
     },
     opts = {
       lang = 'go',
+    },
+  },
+  {
+    'ThePrimeagen/vim-be-good',
+    event = 'VimEnter',
+  },
+  {
+    'folke/trouble.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {
+      vim.keymap.set('n', '<leader>tw', '<cmd>TroubleToggle workspace_diagnostics<CR>', { desc = 'Opens the trouble quickfix list' }),
+      vim.keymap.set('n', '<leader>t', '<cmd>TroubleToggle<CR>', { desc = 'Opens the trouble quickfix list' }),
+    },
+  },
+  {
+    'epwalsh/obsidian.nvim',
+    lazy = true,
+    event = {
+      'BufReadPre /media/oem/MoreStuff/ObsidianVault/MyVault/**.md',
+      'BufNewFile /media/oem/MoreStuff/ObsidianVault/MyVault/**.md',
+    },
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      require('obsidian').setup {
+        dir = '/media/oem/MoreStuff/ObsidianVault/MyVault',
+        notes_subdir = 'Zettelkasten',
+        completion = {
+          nvim_cmp = true,
+          min_chars = 2,
+        },
+        new_notes_location = 'notes_subdir',
+        disable_frontmatter = true,
+        templates = {
+          subdir = 'Templates',
+          date_format = '%Y-%m-%d',
+          time_format = '%H:%M:%S',
+        },
+        mappings = {},
+        ui = {
+          enable = true,
+        },
+      }
+
+      vim.keymap.set('n', '<leader>on', '<cmd>ObsidianNew<CR>', { desc = 'Obsidian: Create a new note' })
+      vim.keymap.set('n', '<leader>ot', '<cmd>ObsidianTemplate<CR>', { desc = 'Obsidian: Insert a template into the nose using telescope.nvim' })
+      vim.keymap.set('n', '<leader>of', '<cmd>ObsidianFollowLink<CR>', { desc = 'Obsidian: Follow a note reference under the cursor' })
+
+      -- ["<leader>on"] = {"<cmd>ObsidianNew<CR>", "Create a new note"},
+      -- ["<leader>ot"] = {"<cmd>ObsidianTemplate<CR>", "Insert a template into the note using telescope.nvim"},
+      -- ["<leader>of"] = {"<cmd>ObsidianFollowLink<CR>", "Follow a note reference below the cursor"},
+    end,
+  },
+  {
+    'cbochs/grapple.nvim',
+    dependencies = {
+      { 'nvim-tree/nvim-web-devicons', lazy = true },
+    },
+    opts = {
+      scope = 'git',
+    },
+    event = { 'BufReadPost', 'BufNewFile' },
+    cmd = 'Grapple',
+    keys = {
+      { '<leader>m', '<cmd>Grapple toggle<cr>', desc = 'Grapple toggle tag' },
+      { '<leader>M', '<cmd>Grapple toggle_tags<cr>', desc = 'Grapple open tags window' },
+      { '<leader>n', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
+      { '<leader>p', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
     },
   },
 }
