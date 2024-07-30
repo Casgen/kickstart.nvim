@@ -2,7 +2,9 @@ return {
   'rcarriga/nvim-dap-ui',
   dependencies = {
     'mfussenegger/nvim-dap',
+    'nvim-neotest/nvim-nio',
   },
+  commit = '5934302d63d1ede12c0b22b6f23518bb183fc972',
   config = function()
     local dapui = require 'dapui'
     local dap = require 'dap'
@@ -20,8 +22,7 @@ return {
         open = 'o',
         remove = 'd',
         edit = 'e',
-        repl = 'r',
-        toggle = 't',
+        repl = 'r', toggle = 't',
       },
       layouts = {
         {
@@ -63,11 +64,11 @@ return {
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = function()
-      dapui.close()
+      require('dapui').close()
       vim.cmd ":lua require'dap'.close()"
     end
     dap.listeners.before.event_exited['dapui_config'] = function()
-      dapui.close()
+      require('dapui').close()
       vim.cmd ":lua require'dap'.close()"
     end
   end,

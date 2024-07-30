@@ -4,6 +4,9 @@
 -- See the kickstart.nvim README for more information
 return {
   {
+    'tpope/vim-fugitive',
+  },
+  {
     'alexghergh/nvim-tmux-navigation',
     event = 'VimEnter',
     config = function()
@@ -17,6 +20,41 @@ return {
       vim.keymap.set('n', '<C-l>', '<cmd>NvimTmuxNavigateRight<CR>', { desc = 'Switch right to TMux Window' })
       vim.keymap.set('n', '<C-j>', '<cmd>NvimTmuxNavigateDown<CR>', { desc = 'Switch down to  TMux Window' })
       vim.keymap.set('n', '<C-k>', '<cmd>NvimTmuxNavigateUp<CR>', { desc = 'Switch up to TMux Window' })
+    end,
+  },
+  {
+    'lewis6991/gitsigns.nvim',
+
+    config = function()
+      require('gitsigns').setup {
+        signs = {
+          add = { text = '┃' },
+          change = { text = '┃' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+          untracked = { text = '┆' },
+        },
+      }
+
+      vim.keymap.set('n', ']c', function()
+        if vim.wo.diff then
+          return ']c'
+        end
+        vim.schedule(function()
+          require('gitsigns.actions').next_hunk()
+        end)
+        return '<Ignore>'
+      end, { expr = true })
+      vim.keymap.set('n', '[c', function()
+        if vim.wo.diff then
+          return '[c'
+        end
+        vim.schedule(function()
+          require('gitsigns.actions').prev_hunk()
+        end)
+        return '<Ignore>'
+      end, { expr = true })
     end,
   },
   {
@@ -59,7 +97,8 @@ return {
     config = function()
       require('lualine').setup {
         sections = {
-          lualine_b = { 'grapple' },
+          lualine_b = { 'branch', 'diagnostics' },
+          lualine_c = { 'grapple', 'filename' },
         },
       }
     end,
@@ -171,6 +210,24 @@ return {
       { '<leader>M', '<cmd>Grapple toggle_tags<cr>', desc = 'Grapple open tags window' },
       { '<leader>n', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
       { '<leader>p', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
+    },
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    event = { 'BufReadPre', 'BufNewFile' },
+    opts = {
+      opts = {
+        enable_close = true, -- Auto close tags
+        enable_rename = true, -- Auto rename pairs of tags
+        enable_close_on_slash = false, -- Auto close on trailing </
+      },
+    },
+  },
+  {
+    'kwkarlwang/bufjump.nvim',
+    opts = {
+      forward_key = '<C-o>',
+      backward_key = '<C-i>',
     },
   },
 }
