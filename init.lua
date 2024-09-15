@@ -215,8 +215,8 @@ require('lazy').setup({
           },
           layout_strategy = 'vertical',
           layout_config = {
-            height = 0.95
-          }
+            height = 0.95,
+          },
         },
         extensions = {
           ['ui-select'] = {
@@ -510,7 +510,8 @@ require('lazy').setup({
         disable = { 'latex' },
       },
       autotag = {
-        enable = true
+        enable = true,
+        filetypes = { 'tsx' },
       },
       indent = { enable = true },
       ignore_install = { 'latex' },
@@ -520,7 +521,6 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
-
     end,
   },
   require 'kickstart.plugins.debug',

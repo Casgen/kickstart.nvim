@@ -1,7 +1,3 @@
--- You can add your own plugins here or in other files in this directory!
---  I promise not to create any merge conflicts in this directory :)
---
--- See the kickstart.nvim README for more information
 return {
   {
     'tpope/vim-fugitive',
@@ -12,9 +8,9 @@ return {
   },
   {
     'kwkarlwang/bufjump.nvim',
-    opts = {
-      forward_key = '<C-S-Tab>',
-      backward_key = '<C-Tab>',
-    },
+    config = function()
+      vim.keymap.set('n', '<C-O>', "<cmd>lua require('bufjump').backward()<CR>")
+      vim.keymap.set('n', '<C-I>', "<cmd>lua require('bufjump').forward()<CR>")
+    end,
   },
 }
