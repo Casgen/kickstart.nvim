@@ -56,16 +56,6 @@ vim.opt.scrolloff = 10
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
--- vim.g.XkbSwitchEnabled = 1
--- vim.g.XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
---
--- vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
---   pattern = { '*.md' },
---   callback = function()
---     vim.wo.conceallevel = 2
---   end,
--- })
-
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -468,31 +458,6 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
     opts = {},
   },
-
-  -- {
-  --   'Everblush/nvim',
-  --   priority = 1000,
-  --   init = function()
-  --     vim.cmd.colorscheme 'everblush'
-  --     vim.cmd.hi 'Comment gui=none'
-  --     vim.cmd 'hi LineNr guibg=none guifg=#4F4F4F'
-  --     vim.cmd 'hi CursorLineNr guibg=none guifg=#7F7F7F'
-  --
-  --     require('everblush').setup {
-  --       {
-  --         transparent_background = false,
-  --
-  --         override = {
-  --           LineNr = { guifg = '#FFFFFF', guibg = '#FFFFFFF' },
-  --         },
-  --
-  --         nvim_tree = {
-  --           contrast = true,
-  --         },
-  --       },
-  --     }
-  --   end,
-  -- },
   {
     'ellisonleao/gruvbox.nvim',
     priority = 1000,
@@ -544,6 +509,9 @@ require('lazy').setup({
         enable = true,
         disable = { 'latex' },
       },
+      autotag = {
+        enable = true
+      },
       indent = { enable = true },
       ignore_install = { 'latex' },
     },
@@ -553,11 +521,9 @@ require('lazy').setup({
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
 
-      vim.treesitter.language.register('glsl', { 'nv.mesh', 'nv.task', 'mesh', 'task', 'frag', 'vert', 'tesc', 'tese', 'geom', 'comp' })
     end,
   },
   require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.nvim_dap_ui',
   { import = 'custom.plugins' },
 }, {
   ui = {

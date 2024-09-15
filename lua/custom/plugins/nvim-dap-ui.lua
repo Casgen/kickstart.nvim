@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-fields
+
 return {
   'rcarriga/nvim-dap-ui',
   dependencies = {
@@ -12,9 +14,7 @@ return {
     -- For some reason I have to call this here explicitly?
     dapui.setup {
       controls = {
-        enabled = true,
-      },
-      expand_lines = true,
+        enabled = true, }, expand_lines = true,
       icons = { expanded = '', collapsed = '', circular = '', current_frame = '*' },
       mappings = {
         -- Use a table to apply multiple mappings
