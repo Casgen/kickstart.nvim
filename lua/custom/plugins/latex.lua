@@ -36,23 +36,23 @@ return {
         end,
       })
 
-      vim.api.nvim_create_autocmd('InsertEnter', {
-        pattern = { '*.tex', '*.md' },
-        callback = switch_keyboard_layout,
-      })
-
-      vim.api.nvim_create_autocmd('InsertLeave', {
-        pattern = { '*.tex', '*.md' },
-        callback = switch_keyboard_layout,
-      })
+      -- vim.api.nvim_create_autocmd('InsertEnter', {
+      --   pattern = { '*.tex', '*.md' },
+      --   callback = switch_keyboard_layout,
+      -- })
+      --
+      -- vim.api.nvim_create_autocmd('InsertLeave', {
+      --   pattern = { '*.tex', '*.md' },
+      --   callback = switch_keyboard_layout,
+      -- })
 
       -- Used for autocompiling when saving the TeX file.
-      vim.api.nvim_create_autocmd('BufWritePost', {
-        pattern = { '*.tex' },
-        callback = function()
-          vim.cmd 'silent! VimtexCompileSS'
-        end,
-      })
+      -- vim.api.nvim_create_autocmd('BufWritePost', {
+      --   pattern = { '*.tex' },
+      --   callback = function()
+      --     vim.cmd 'silent! VimtexCompileSS'
+      --   end,
+      -- })
     end,
   },
   { 'xuhdev/vim-latex-live-preview', lazy = false },

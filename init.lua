@@ -56,22 +56,20 @@ vim.opt.scrolloff = 10
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
-vim.g.XkbSwitchEnabled = 1
-vim.g.XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
-
-vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
-  pattern = { '*.md' },
-  callback = function()
-    vim.wo.conceallevel = 1
-  end,
-})
+-- vim.g.XkbSwitchEnabled = 1
+-- vim.g.XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
+--
+-- vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
+--   pattern = { '*.md' },
+--   callback = function()
+--     vim.wo.conceallevel = 2
+--   end,
+-- })
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>hl', '<cmd>set hlsearch<CR>')
-
-vim.opt.formatoptions:remove { 'c', 'r', 'o' }
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
@@ -128,6 +126,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('BufEnter', {
+  desc = 'Turn off automatic commenting on next lines',
+  group = vim.api.nvim_create_augroup('disable-automatic-commenting', { clear = true }),
+  callback = function()
+    vim.opt.formatoptions:remove { 'c', 'r', 'o' }
+  end,
+})
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
@@ -169,19 +175,22 @@ require('lazy').setup({
       },
     },
   },
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim', opts = {
+    sticky = false,
+  } },
   {
     'folke/which-key.nvim',
     event = 'VimEnter',
     config = function()
       require('which-key').setup()
-
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>t', group = '[T]oggle' },
+        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       }
     end,
   },
@@ -214,6 +223,10 @@ require('lazy').setup({
               ['dd'] = require('telescope.actions').delete_buffer,
             },
           },
+          layout_strategy = 'vertical',
+          layout_config = {
+            height = 0.95
+          }
         },
         extensions = {
           ['ui-select'] = {
@@ -271,6 +284,9 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
+      -- This removes the default autoformatting when saving a file with the Zig's ZLS language server.
+      vim.g.zig_fmt_autosave = 0
+
       vim.keymap.set('n', '<leader>cs', '<cmd>ClangdSwitchSourceHeader<CR>', { desc = 'Switch between header and source file in C++' })
       vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, { desc = 'Signature help' })
 
@@ -367,11 +383,6 @@ require('lazy').setup({
     end,
   },
   {
-    'pmizio/typescript-tools.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-    opts = {},
-  },
-  {
     'stevearc/conform.nvim',
     config = function()
       local conform = require 'conform'
@@ -452,6 +463,11 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    'pmizio/typescript-tools.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    opts = {},
+  },
 
   -- {
   --   'Everblush/nvim',
@@ -523,8 +539,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
-      auto_install = true,
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc' },
       highlight = {
         enable = true,
         disable = { 'latex' },

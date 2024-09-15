@@ -55,6 +55,32 @@ return {
       },
     }
 
+    dap.adapters.coreclr = {
+      type = 'executable',
+      command = '/home/oem/.local/share/nvim/mason/bin/netcoredbg',
+      args = { '--interpreter=vscode' },
+    }
+
+    dap.configurations.cs = {
+      {
+        name = '.NET Core Launch (web)',
+        type = 'coreclr',
+        request = 'launch',
+        preLaunchTask = 'build',
+        program = '${workspaceFolder}/src/SEN.Backend.HttpApi.Host/bin/Debug/net7.0/SEN.Backend.HttpApi.Host.dll',
+        args = {},
+        cwd = '${workspaceFolder}',
+        stopAtEntry = false,
+        serverReadyAction = {
+          action = 'openExternally',
+          pattern = '\\bNow listening on:\\s+(https?://\\S+)',
+        },
+        env = {
+          ASPNETCORE_ENVIRONMENT = 'Development',
+        },
+      },
+    }
+
     dap.configurations.python = {
       {
         name = 'Python: Current File',
@@ -73,6 +99,34 @@ return {
         name = 'Run 8086-sim',
         request = 'launch',
         program = '${workspaceFolder}/build/8086sim',
+        preLaunchTask = 'odin build ./src/main.odin -file -debug -out:build/8086sim',
+        args = {},
+        cwd = '${workspaceFolder}',
+      },
+    }
+
+    dap.configurations.zig = {
+      {
+        type = 'codelldb',
+        name = 'Run Repeat Test',
+        request = 'launch',
+        program = '${workspaceFolder}/zig-out/bin/repeat_test',
+        args = {},
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'codelldb',
+        name = 'Run Haversine',
+        request = 'launch',
+        program = '${workspaceFolder}/zig-out/bin/haversine',
+        args = { '--parse', './pairs.json' },
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'codelldb',
+        name = 'Run Timer',
+        request = 'launch',
+        program = '${workspaceFolder}/zig-out/bin/timer',
         args = {},
         cwd = '${workspaceFolder}',
       },
@@ -80,6 +134,25 @@ return {
 
     -- CPP debugger setup for the MeshAndTaskShaders project
     dap.configurations.cpp = {
+      {
+        name = '(gdb) Launch ClassicMeshLOD',
+        type = 'cppdbg',
+        request = 'launch',
+        program = '${workspaceFolder}/bin/Debug-linux-x86_64/ClassicMeshLOD/ClassicMeshLOD',
+        args = {},
+        stopAtEntry = false,
+        cwd = '${workspaceFolder}',
+        environment = {},
+        MIMode = 'gdb',
+        preLaunchTask = './BuildAndCompile.sh',
+        setupCommands = {
+          {
+            description = 'Enable pretty-printing for gdb',
+            text = '-enable-pretty-printing',
+            ignoreFailures = true,
+          },
+        },
+      },
       {
         name = '(gdb) Launch Tesselation',
         type = 'cppdbg',
