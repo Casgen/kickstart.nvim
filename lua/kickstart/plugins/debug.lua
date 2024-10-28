@@ -66,10 +66,9 @@ return {
         name = '.NET Core Launch (web)',
         type = 'coreclr',
         request = 'launch',
-        preLaunchTask = 'build',
-        program = '${workspaceFolder}/src/SEN.Backend.HttpApi.Host/bin/Debug/net7.0/SEN.Backend.HttpApi.Host.dll',
-        args = {},
-        cwd = '${workspaceFolder}',
+        program = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/bin/Debug/net8.0/SIE.Backend.HttpApi.Host.dll',
+        cwd = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/',
+		args = {'--launch-profile "Development"'},
         stopAtEntry = false,
         serverReadyAction = {
           action = 'openExternally',
@@ -94,6 +93,14 @@ return {
     }
 
     dap.configurations.odin = {
+      {
+        type = 'codelldb',
+        name = 'Run Pacman',
+        request = 'launch',
+        program = '${workspaceFolder}/build/pacman',
+        args = {},
+        cwd = '${workspaceFolder}',
+      },
       {
         type = 'codelldb',
         name = 'Run 8086-sim',
@@ -134,6 +141,24 @@ return {
 
     -- CPP debugger setup for the MeshAndTaskShaders project
     dap.configurations.cpp = {
+      {
+        name = '(gdb) Launch Uglifier',
+        type = 'cppdbg',
+        request = 'launch',
+        program = '${workspaceFolder}/bin/uglifier',
+        args = {},
+        stopAtEntry = false,
+        cwd = '${workspaceFolder}',
+        environment = {},
+        MIMode = 'gdb',
+        setupCommands = {
+          {
+            description = 'Enable pretty-printing for gdb',
+            text = '-enable-pretty-printing',
+            ignoreFailures = true,
+          },
+        },
+      },
       {
         name = '(gdb) Launch ClassicMeshLOD',
         type = 'cppdbg',

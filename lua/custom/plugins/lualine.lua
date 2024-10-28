@@ -6,6 +6,9 @@ return {
 
   config = function()
     require('lualine').setup {
+      options = {
+        theme = 'gruvbox',
+      },
       sections = {
         lualine_b = { 'branch', 'diagnostics' },
         lualine_c = { 'grapple', 'filename' },

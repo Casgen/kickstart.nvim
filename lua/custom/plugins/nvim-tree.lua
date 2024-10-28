@@ -13,8 +13,12 @@ return {
       sort = {
         sorter = 'case_sensitive',
       },
+      update_focused_file = {
+        enable = true,
+      },
       view = {
         width = 30,
+		relativenumber = true,
         float = {
           enable = true,
           open_win_config = function()

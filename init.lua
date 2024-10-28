@@ -31,6 +31,7 @@ vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
+vim.opt.colorcolumn = '120'
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -99,14 +100,15 @@ vim.keymap.set('n', '<C-b>', 'ge', { desc = 'Move cursor by a word to the left l
 
 -- Better paste (duh)
 vim.keymap.set('v', 'p', '"_dP', { desc = 'Better paste' })
+
 vim.keymap.set('n', '<leader>xb', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 vim.keymap.set('n', '<leader>x', vim.api.nvim_win_close, { desc = 'Close current window' })
 
 vim.keymap.set('v', '<', '<gv', { desc = 'Tab right and stay in indent mode' })
 vim.keymap.set('v', '>', '>gv', { desc = 'Tab left and stay in indent mode' })
 
-vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Go to next occurence and center windowd' })
-vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Go to prev occurence and center windowd' })
+vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Go to next occurence and center window' })
+vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Go to prev occurence and center window' })
 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
@@ -121,6 +123,15 @@ vim.api.nvim_create_autocmd('BufEnter', {
   group = vim.api.nvim_create_augroup('disable-automatic-commenting', { clear = true }),
   callback = function()
     vim.opt.formatoptions:remove { 'c', 'r', 'o' }
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Set Conceallevel to 2 on markdown files',
+  group = vim.api.nvim_create_augroup('conceallevel-md', { clear = true }),
+  pattern = { '*.md' },
+  callback = function()
+    vim.opt.conceallevel = 2
   end,
 })
 
@@ -306,6 +317,21 @@ require('lazy').setup({
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
           map('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
 
+          vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
+            border = 'rounded',
+          })
+
+          vim.lsp.handlers['textDocument/textDocument'] = vim.lsp.with(vim.lsp.handlers.hover, {
+            border = 'rounded',
+          })
+
+          local signs = { Error = '', Warn = '', Hint = '󰌶', Info = '' }
+
+          for type, icon in pairs(signs) do
+            local hl = 'DiagnosticSign' .. type
+            vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+          end
+
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client.server_capabilities.documentHighlightProvider then
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -334,7 +360,6 @@ require('lazy').setup({
           --   ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
           -- },
         },
-        markdownlint = {},
         gopls = {},
         cssls = {},
         texlab = {},
@@ -384,10 +409,12 @@ require('lazy').setup({
           javascript = { 'prettierd' },
           typescript = { 'prettierd' },
           typescriptreact = { 'prettierd' },
+          csharp = { 'csharpier' },
           cpp = { 'clang_format' },
           css = { 'prettied' },
           python = { 'black' },
           markdown = { 'markdownlint' },
+          go = { 'gofumpt' },
         },
       }
 
@@ -451,6 +478,14 @@ require('lazy').setup({
           { name = 'path' },
         },
       }
+
+      -- Setup vim-dadbod completion
+      cmp.setup.filetype({ 'sql' }, {
+        sources = {
+          { name = 'vim-dadbod-completion' },
+          { name = 'buffer' },
+        },
+      })
     end,
   },
   {
@@ -464,33 +499,36 @@ require('lazy').setup({
     config = function()
       local gruvbox = require 'gruvbox'
 
+      local is_transparent = true
+
       gruvbox.setup {
         overrides = {
-          SignColumn = { bg = gruvbox.palette.dark0_hard },
-          CursorLineNr = { bg = gruvbox.palette.dark0_hard },
-          CursorLine = { bg = gruvbox.palette.dark0_hard },
+          SignColumn = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
+          CursorLineNr = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
+          CursorLine = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
         },
         contrast = 'hard',
+        transparent_mode = is_transparent,
       }
 
       vim.cmd.colorscheme 'gruvbox'
       vim.o.background = 'dark'
     end,
   },
-
+  -- {
+  --   'eldritch-theme/eldritch.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     require 'eldritch'.setup{}
+  --     vim.cmd.colorscheme 'eldritch'
+  --   end,
+  -- },
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   {
     'echasnovski/mini.nvim',
     config = function()
-      -- Better Around/Inside textobjects
-      --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [']quote
-      --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
-
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren

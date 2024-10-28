@@ -8,9 +8,9 @@ return {
   },
   {
     'kwkarlwang/bufjump.nvim',
-    config = function()
-      vim.keymap.set('n', '<C-O>', "<cmd>lua require('bufjump').backward()<CR>")
-      vim.keymap.set('n', '<C-I>', "<cmd>lua require('bufjump').forward()<CR>")
-    end,
+    opts = {
+      forward_key = '<C-o>',
+      backward_key = '<C-i>',
+    },
   },
 }
