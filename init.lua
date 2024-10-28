@@ -110,6 +110,10 @@ vim.keymap.set('v', '>', '>gv', { desc = 'Tab left and stay in indent mode' })
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Go to next occurence and center window' })
 vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Go to prev occurence and center window' })
 
+vim.cmd 'match errorMsg /\\s\\+$/'
+
+-- Autocmds
+
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
@@ -126,14 +130,41 @@ vim.api.nvim_create_autocmd('BufEnter', {
   end,
 })
 
-vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Set Conceallevel to 2 on markdown files',
-  group = vim.api.nvim_create_augroup('conceallevel-md', { clear = true }),
-  pattern = { '*.md' },
-  callback = function()
-    vim.opt.conceallevel = 2
-  end,
-})
+-- vim.api.nvim_create_autocmd('BufReadPre', {
+--   desc = 'Set Conceallevel to 2 on markdown files',
+--   group = vim.api.nvim_create_augroup('conceallevel-md', { clear = true }),
+--   pattern = { '*.md' },
+--   callback = function()
+--     vim.opt.conceallevel = 2
+--   end,
+-- })
+
+--[[
+Cppman
+
+When you are trying to open `cppman` and you get no manual entry. Try running:
+```bash
+$ touch ~/.manpath
+$ mandb
+```
+
+this will create the path for the manual and reindex the manual database.
+Also run this, to execute `man` with `cppman`
+
+```bash
+$ cppman -m true
+```
+]]--
+local call_cppman = function()
+  local old_isk = vim.opt.iskeyword
+  vim.opt_local.iskeyword:append(':')
+
+  local str = vim.fn.expand('<cword>')
+  vim.opt.iskeyword = old_isk
+
+  vim.cmd('Man ' .. str)
+end
+
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -313,6 +344,7 @@ require('lazy').setup({
           map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
           map('K', vim.lsp.buf.hover, 'Hover Documentation')
+          map('<leader>cm', call_cppman, 'Hover Documentation')
 
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
           map('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
@@ -360,13 +392,7 @@ require('lazy').setup({
           --   ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
           -- },
         },
-        gopls = {},
-        cssls = {},
-        texlab = {},
-        zls = {},
         clangd = {},
-        ols = {},
-        pyright = {},
         lua_ls = {
           settings = {
             Lua = {
@@ -489,11 +515,6 @@ require('lazy').setup({
     end,
   },
   {
-    'pmizio/typescript-tools.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-    opts = {},
-  },
-  {
     'ellisonleao/gruvbox.nvim',
     priority = 1000,
     config = function()
@@ -515,15 +536,6 @@ require('lazy').setup({
       vim.o.background = 'dark'
     end,
   },
-  -- {
-  --   'eldritch-theme/eldritch.nvim',
-  --   lazy = false,
-  --   priority = 1000,
-  --   config = function()
-  --     require 'eldritch'.setup{}
-  --     vim.cmd.colorscheme 'eldritch'
-  --   end,
-  -- },
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   {
@@ -542,7 +554,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc', 'cpp' },
       highlight = {
         enable = true,
         disable = { 'latex' },

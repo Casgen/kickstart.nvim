@@ -4,7 +4,6 @@ return {
     'rcarriga/nvim-dap-ui',
     'williamboman/mason.nvim',
     'jay-babu/mason-nvim-dap.nvim',
-    'leoluz/nvim-dap-go',
   },
   config = function()
     local dap = require 'dap'
@@ -16,7 +15,6 @@ return {
       handlers = {},
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
-        'delve',
       },
     }
 
@@ -40,12 +38,6 @@ return {
       id = 'cppdbg',
     }
 
-    dap.adapters.python = {
-      type = 'executable',
-      command = 'python3',
-      args = { '-m', 'debugpy.adapter' },
-    }
-
     dap.adapters.codelldb = {
       type = 'server',
       port = '13000',
@@ -59,84 +51,6 @@ return {
       type = 'executable',
       command = '/home/oem/.local/share/nvim/mason/bin/netcoredbg',
       args = { '--interpreter=vscode' },
-    }
-
-    dap.configurations.cs = {
-      {
-        name = '.NET Core Launch (web)',
-        type = 'coreclr',
-        request = 'launch',
-        program = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/bin/Debug/net8.0/SIE.Backend.HttpApi.Host.dll',
-        cwd = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/',
-		args = {'--launch-profile "Development"'},
-        stopAtEntry = false,
-        serverReadyAction = {
-          action = 'openExternally',
-          pattern = '\\bNow listening on:\\s+(https?://\\S+)',
-        },
-        env = {
-          ASPNETCORE_ENVIRONMENT = 'Development',
-        },
-      },
-    }
-
-    dap.configurations.python = {
-      {
-        name = 'Python: Current File',
-        type = 'python',
-        request = 'launch',
-        program = '${file}',
-        console = 'integratedTerminal',
-        cwd = '${workspaceFolder}',
-        justMyCode = true,
-      },
-    }
-
-    dap.configurations.odin = {
-      {
-        type = 'codelldb',
-        name = 'Run Pacman',
-        request = 'launch',
-        program = '${workspaceFolder}/build/pacman',
-        args = {},
-        cwd = '${workspaceFolder}',
-      },
-      {
-        type = 'codelldb',
-        name = 'Run 8086-sim',
-        request = 'launch',
-        program = '${workspaceFolder}/build/8086sim',
-        preLaunchTask = 'odin build ./src/main.odin -file -debug -out:build/8086sim',
-        args = {},
-        cwd = '${workspaceFolder}',
-      },
-    }
-
-    dap.configurations.zig = {
-      {
-        type = 'codelldb',
-        name = 'Run Repeat Test',
-        request = 'launch',
-        program = '${workspaceFolder}/zig-out/bin/repeat_test',
-        args = {},
-        cwd = '${workspaceFolder}',
-      },
-      {
-        type = 'codelldb',
-        name = 'Run Haversine',
-        request = 'launch',
-        program = '${workspaceFolder}/zig-out/bin/haversine',
-        args = { '--parse', './pairs.json' },
-        cwd = '${workspaceFolder}',
-      },
-      {
-        type = 'codelldb',
-        name = 'Run Timer',
-        request = 'launch',
-        program = '${workspaceFolder}/zig-out/bin/timer',
-        args = {},
-        cwd = '${workspaceFolder}',
-      },
     }
 
     -- CPP debugger setup for the MeshAndTaskShaders project
@@ -256,7 +170,5 @@ return {
       },
     }
 
-    -- Install golang specific config
-    require('dap-go').setup()
   end,
 }
