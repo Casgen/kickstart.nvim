@@ -15,9 +15,12 @@ vim.opt.mouse = 'a'
 vim.opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
+--  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+end)
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -115,6 +118,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
     vim.highlight.on_yank()
+    vim.fn.setpos("'>", { 0 })
   end,
 })
 
@@ -127,18 +131,46 @@ vim.api.nvim_create_autocmd('BufEnter', {
 })
 
 vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Set Conceallevel to 2 on markdown files',
+  desc = 'Set Conceallevel to 2 and enable wrapping on markdown files ',
   group = vim.api.nvim_create_augroup('conceallevel-md', { clear = true }),
   pattern = { '*.md' },
   callback = function()
-    vim.opt.conceallevel = 2
+    vim.opt.wrap = true
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Set tabs to 4 spaces in .rs files',
+  group = vim.api.nvim_create_augroup('4-spaces-rust', { clear = true }),
+  pattern = { '*.rs' },
+  callback = function()
+    vim.opt_local.expandtab = true
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+    vim.opt_local.shiftwidth = 4
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Set tabs to 2 spaces in .lua files',
+  group = vim.api.nvim_create_augroup('2-spaces-lua', { clear = true }),
+  pattern = { '*.lua' },
+  callback = function()
+    vim.opt_local.expandtab = true
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+    vim.opt_local.shiftwidth = 2
   end,
 })
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+
+  local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  if vim.v.shell_error ~= 0 then
+    error('Error cloning lazy.nvim:\n' .. out)
+  end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
@@ -273,16 +305,30 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
+  -- LSP Plugins
+  {
+    -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
+    -- used for completion, annotations and signatures of Neovim apis
+    'folke/lazydev.nvim',
+    ft = 'lua',
+    opts = {
+      library = {
+        -- Load luvit types when the `vim.uv` word is found
+        { path = 'luvit-meta/library', words = { 'vim%.uv' } },
+      },
+    },
+  },
+  { 'Bilal2453/luvit-meta', lazy = true },
 
   {
     'neovim/nvim-lspconfig',
     dependencies = {
-      'williamboman/mason.nvim',
+      { 'williamboman/mason.nvim', config = true },
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
+      'hrsh7th/cmp-nvim-lsp',
 
       { 'j-hui/fidget.nvim', opts = {} },
-      { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
       -- This removes the default autoformatting when saving a file with the Zig's ZLS language server.
@@ -333,16 +379,34 @@ require('lazy').setup({
           end
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.server_capabilities.documentHighlightProvider then
+
+          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
+              group = highlight_augroup,
               callback = vim.lsp.buf.document_highlight,
             })
 
             vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
               buffer = event.buf,
+              group = highlight_augroup,
               callback = vim.lsp.buf.clear_references,
             })
+
+            vim.api.nvim_create_autocmd('LspDetach', {
+              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
+              callback = function(event2)
+                vim.lsp.buf.clear_references()
+                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
+              end,
+            })
+          end
+
+          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+            map('<leader>th', function()
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+            end, '[T]oggle Inlay [H]ints')
           end
         end,
       })
@@ -360,12 +424,14 @@ require('lazy').setup({
           --   ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
           -- },
         },
+        rust_analyzer = {},
         gopls = {},
         cssls = {},
         texlab = {},
         zls = {},
         clangd = {},
         ols = {},
+        glsl_analyzer = {},
         pyright = {},
         lua_ls = {
           settings = {
@@ -375,6 +441,15 @@ require('lazy').setup({
               },
             },
           },
+        },
+        julials = {
+
+          on_new_config = function(new_config, _)
+            local julia = vim.fn.expand '~/.julia/environments/nvim-lspconfig/bin/julia'
+            if require('lspconfig').util.path.is_file(julia) then
+              new_config.cmd[1] = julia
+            end
+          end,
         },
       }
 
@@ -529,6 +604,7 @@ require('lazy').setup({
   {
     'echasnovski/mini.nvim',
     config = function()
+      require('mini.ai').setup { n_lines = 500 }
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
@@ -542,7 +618,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc', 'diff', 'luadoc' },
       highlight = {
         enable = true,
         disable = { 'latex' },
@@ -559,6 +635,7 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
+      vim.treesitter.language.register('glsl', { 'comp', 'vert', 'frag', 'geom' })
     end,
   },
   require 'kickstart.plugins.debug',

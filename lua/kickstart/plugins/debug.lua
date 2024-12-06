@@ -68,7 +68,7 @@ return {
         request = 'launch',
         program = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/bin/Debug/net8.0/SIE.Backend.HttpApi.Host.dll',
         cwd = '${workspaceFolder}/src/SIE.Backend.HttpApi.Host/',
-		args = {'--launch-profile "Development"'},
+        args = { '--launch-profile "Development"' },
         stopAtEntry = false,
         serverReadyAction = {
           action = 'openExternally',
@@ -112,23 +112,44 @@ return {
       },
     }
 
+    local aoc_bin_path = function()
+      local dirs = vim.split(vim.fn.getcwd(), '/')
+      return '${workspaceFolder}/zig-out/bin/' .. dirs[#dirs]
+    end
+
     dap.configurations.zig = {
       {
         type = 'codelldb',
-        name = 'Run Repeat Test',
+        name = 'Run AOC',
         request = 'launch',
-        program = '${workspaceFolder}/zig-out/bin/repeat_test',
+        program = aoc_bin_path(),
         args = {},
         cwd = '${workspaceFolder}',
       },
       {
         type = 'codelldb',
-        name = 'Run Haversine',
+        name = 'Run MOV test',
         request = 'launch',
-        program = '${workspaceFolder}/zig-out/bin/haversine',
-        args = { '--parse', './pairs.json' },
+        program = '${workspaceFolder}/zig-out/bin/test-zig',
+        args = {},
         cwd = '${workspaceFolder}',
       },
+      -- {
+      --   type = 'codelldb',
+      --   name = 'Run Repeat Test',
+      --   request = 'launch',
+      --   program = '${workspaceFolder}/zig-out/bin/repeat_test',
+      --   args = {},
+      --   cwd = '${workspaceFolder}',
+      -- },
+      -- {
+      --   type = 'codelldb',
+      --   name = 'Run Haversine',
+      --   request = 'launch',
+      --   program = '${workspaceFolder}/zig-out/bin/haversine',
+      --   args = { '--parse', './pairs.json' },
+      --   cwd = '${workspaceFolder}',
+      -- },
       {
         type = 'codelldb',
         name = 'Run Timer',
@@ -257,6 +278,10 @@ return {
     }
 
     -- Install golang specific config
-    require('dap-go').setup()
+    require('dap-go').setup {
+      delve = {
+        detached = vim.fn.has 'win32' == 0,
+      },
+    }
   end,
 }
