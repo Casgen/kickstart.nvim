@@ -478,7 +478,7 @@ require('lazy').setup({
       local conform = require 'conform'
 
       conform.setup {
-        notify_on_error = false,
+        notify_on_error = true,
         formatters_by_ft = {
           lua = { 'stylua' },
           javascript = { 'prettierd' },
@@ -568,28 +568,57 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
     opts = {},
   },
+  -- {
+  --   'Everblush/nvim',
+  --   name = 'everblush',
+  --   config = function()
+  --     require('everblush').setup {
+  --       transparent_background = true,
+  --       nvim_tree = {
+  --         contrast = true,
+  --       },
+  --     }
+  --     vim.cmd.colorscheme 'everblush'
+  --   end,
+  -- },
   {
-    'ellisonleao/gruvbox.nvim',
-    priority = 1000,
+    'neanias/everforest-nvim',
+    version = false,
+    lazy = false,
+    priority = 1000, -- make sure to load this before all the other start plugins
+    -- Optional; default configuration will be used if setup isn't called.
     config = function()
-      local gruvbox = require 'gruvbox'
-
-      local is_transparent = true
-
-      gruvbox.setup {
-        overrides = {
-          SignColumn = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
-          CursorLineNr = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
-          CursorLine = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
-        },
-        contrast = 'hard',
-        transparent_mode = is_transparent,
+      require('everforest').setup {
+        transparent_background_level = 1,
+        background = "hard",
+        ui_contrast = "high",
       }
+      vim.cmd.colorscheme 'everforest'
 
-      vim.cmd.colorscheme 'gruvbox'
-      vim.o.background = 'dark'
     end,
   },
+  -- {
+  --   'ellisonleao/gruvbox.nvim',
+  --   priority = 1000,
+  --   config = function()
+  --     local gruvbox = require 'gruvbox'
+  --
+  --     local is_transparent = true
+  --
+  --     gruvbox.setup {
+  --       overrides = {
+  --         SignColumn = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
+  --         CursorLineNr = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
+  --         CursorLine = is_transparent and { bg = nil } or { bg = gruvbox.palette.dark0_hard },
+  --       },
+  --       contrast = 'hard',
+  --       transparent_mode = is_transparent,
+  --     }
+  --
+  --     vim.cmd.colorscheme 'gruvbox'
+  --     vim.o.background = 'dark'
+  --   end,
+  -- },
   -- {
   --   'eldritch-theme/eldritch.nvim',
   --   lazy = false,

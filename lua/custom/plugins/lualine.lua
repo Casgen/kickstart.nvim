@@ -7,7 +7,7 @@ return {
   config = function()
     require('lualine').setup {
       options = {
-        theme = 'gruvbox',
+        theme = 'everforest',
       },
       sections = {
         lualine_b = { 'branch', 'diagnostics' },

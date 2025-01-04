@@ -23,7 +23,7 @@ return {
           return date.day .. '-' .. date.month .. '-' .. date.year .. '_' .. date.hour .. '-' .. date.min .. '-' .. date.sec
         end,
         confirm_img_paste = false,
-        img_folder = '',
+        img_folder = './Files',
       },
       new_notes_location = 'notes_subdir',
       disable_frontmatter = true,

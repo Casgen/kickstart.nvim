@@ -94,10 +94,11 @@ return {
 
     dap.configurations.odin = {
       {
-        type = 'codelldb',
+        type = 'cppdbg',
         name = 'Run Pacman',
         request = 'launch',
         program = '${workspaceFolder}/build/pacman',
+        MIMode = 'gdb',
         args = {},
         cwd = '${workspaceFolder}',
       },
@@ -118,11 +119,19 @@ return {
     end
 
     dap.configurations.zig = {
+      -- {
+      --   type = 'codelldb',
+      --   name = 'Run AOC',
+      --   request = 'launch',
+      --   program = aoc_bin_path(),
+      --   args = {},
+      --   cwd = '${workspaceFolder}',
+      -- },
       {
         type = 'codelldb',
-        name = 'Run AOC',
+        name = 'Run Haversine',
         request = 'launch',
-        program = aoc_bin_path(),
+        program = '${workspaceFolder}/zig-out/bin/haversine',
         args = {},
         cwd = '${workspaceFolder}',
       },
@@ -162,6 +171,24 @@ return {
 
     -- CPP debugger setup for the MeshAndTaskShaders project
     dap.configurations.cpp = {
+      {
+        name = '(gdb) Launch Quiz',
+        type = 'cppdbg',
+        request = 'launch',
+        program = '${workspaceFolder}/main',
+        args = {},
+        stopAtEntry = false,
+        cwd = '${workspaceFolder}',
+        environment = {},
+        MIMode = 'gdb',
+        setupCommands = {
+          {
+            description = 'Enable pretty-printing for gdb',
+            text = '-enable-pretty-printing',
+            ignoreFailures = true,
+          },
+        },
+      },
       {
         name = '(gdb) Launch Uglifier',
         type = 'cppdbg',
