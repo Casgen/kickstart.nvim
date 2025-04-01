@@ -1,167 +1,6 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-
-vim.g.have_nerd_font = true
-
--- Make line numbers default
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.mouse = 'a'
-
--- Don't show the mode, since it's already in status line
-vim.opt.showmode = false
-
--- Sync clipboard between OS and Neovim.
---  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
-
--- Enable break indent
-vim.opt.breakindent = true
-
--- Save undo history
-vim.opt.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-
--- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
-vim.opt.colorcolumn = '120'
-
--- Decrease update time
-vim.opt.updatetime = 250
-
--- Decrease mapped sequence wait time
--- Displays which-key popup sooner
-vim.opt.timeoutlen = 300
-
--- Configure how new splits should be opened
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
-vim.cmd 'set wrap!'
-vim.cmd 'set autoindent'
-
-vim.opt.inccommand = 'split'
-
-vim.opt.cursorline = true
-vim.opt.cursorlineopt = 'number'
-vim.opt.shiftwidth = 4
-
-vim.opt.scrolloff = 10
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-
--- Set highlight on search, but clear on pressing <Esc> in normal mode
-vim.opt.hlsearch = true
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-vim.keymap.set('n', '<leader>hl', '<cmd>set hlsearch<CR>')
-
--- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-
--- Move cursor in insert mode
-vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Move cursor left in insert mode' })
-vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Move cursor down in insert mode' })
-vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up in insert mode' })
-vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor right in insert mode' })
-
-vim.keymap.set('n', '<C-c>', '<cmd> %y+ <CR>', { desc = 'Copy whole file' })
-
--- Quickfix list commands
-vim.keymap.set('n', '<leader>cn', '<cmd>cnext<CR>', { desc = 'Go to next reference in Quickfix list' })
-vim.keymap.set('n', '<leader>cp', '<cmd>cprev<CR>', { desc = 'Go to previous reference in Quickfix list' })
-
--- Window resizing
-vim.keymap.set('n', '<C-Left>', '<cmd>vertical resize -2<CR>', { desc = 'Shrink window horizontally' })
-vim.keymap.set('n', '<C-Right>', '<cmd>vertical resize +2<CR>', { desc = 'Expand window horizontally' })
-vim.keymap.set('n', '<C-Up>', '<cmd>resize -2<CR>', { desc = 'Shring window vertically' })
-vim.keymap.set('n', '<C-Down>', '<cmd>resize +2<CR>', { desc = 'Expand window vertically' })
-
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-vim.keymap.set('t', '<A-i>', '<cmd>ToggleTermToggleAll<CR>', { desc = 'Toggle terminal' })
-
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
-vim.keymap.set('n', 'k', 'gk', { desc = 'Move cursor up respecting wrap' })
-vim.keymap.set('n', 'j', 'gj', { desc = 'Move cursor down respecting wrap' })
-vim.keymap.set('n', '<C-b>', 'ge', { desc = 'Move cursor by a word to the left leaving the cursor at the last word char.' })
-
--- Better paste (duh)
-vim.keymap.set('v', 'p', '"_dP', { desc = 'Better paste' })
-
-vim.keymap.set('n', '<leader>xb', '<cmd>bd<CR>', { desc = 'Close current buffer' })
-vim.keymap.set('n', '<leader>x', vim.api.nvim_win_close, { desc = 'Close current window' })
-
-vim.keymap.set('v', '<', '<gv', { desc = 'Tab right and stay in indent mode' })
-vim.keymap.set('v', '>', '>gv', { desc = 'Tab left and stay in indent mode' })
-
-vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Go to next occurence and center window' })
-vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Go to prev occurence and center window' })
-
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-    vim.fn.setpos("'>", { 0 })
-  end,
-})
-
-vim.api.nvim_create_autocmd('BufEnter', {
-  desc = 'Turn off automatic commenting on next lines',
-  group = vim.api.nvim_create_augroup('disable-automatic-commenting', { clear = true }),
-  callback = function()
-    vim.opt.formatoptions:remove { 'c', 'r', 'o' }
-  end,
-})
-
-vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Set Conceallevel to 2 and enable wrapping on markdown files ',
-  group = vim.api.nvim_create_augroup('conceallevel-md', { clear = true }),
-  pattern = { '*.md' },
-  callback = function()
-    vim.opt.wrap = true
-  end,
-})
-
-vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Set tabs to 4 spaces in .rs files',
-  group = vim.api.nvim_create_augroup('4-spaces-rust', { clear = true }),
-  pattern = { '*.rs' },
-  callback = function()
-    vim.opt_local.expandtab = true
-    vim.opt_local.tabstop = 4
-    vim.opt_local.softtabstop = 4
-    vim.opt_local.shiftwidth = 4
-  end,
-})
-
-vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Set tabs to 2 spaces in .lua files',
-  group = vim.api.nvim_create_augroup('2-spaces-lua', { clear = true }),
-  pattern = { '*.lua' },
-  callback = function()
-    vim.opt_local.expandtab = true
-    vim.opt_local.tabstop = 2
-    vim.opt_local.softtabstop = 2
-    vim.opt_local.shiftwidth = 2
-  end,
-})
+require 'custom.options'
+require 'custom.keymaps'
+require 'custom.autocmds'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -208,9 +47,13 @@ require('lazy').setup({
       },
     },
   },
-  { 'numToStr/Comment.nvim', opts = {
-    sticky = false,
-  } },
+  {
+    'numToStr/Comment.nvim',
+    event = 'BufReadPost',
+    opts = {
+      sticky = false,
+    },
+  },
   {
     'folke/which-key.nvim',
     event = 'VimEnter',
@@ -230,8 +73,8 @@ require('lazy').setup({
 
   {
     'nvim-telescope/telescope.nvim',
-    event = 'VimEnter',
     branch = '0.1.x',
+    lazy = true,
     dependencies = {
       'nvim-lua/plenary.nvim',
       {
@@ -247,6 +90,19 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    },
+    keys = {
+      { '<leader>fh', '<cmd>Telescope help_tags<CR>', desc = '[S]earch [H]elp' },
+      { '<leader>fk', '<cmd>Telescope keymaps<CR>', desc = '[S]earch [K]eymaps' },
+      { '<leader>ff', '<cmd>Telescope find_files<CR>', desc = '[S]earch [F]iles' },
+      { '<leader>fs', '<cmd>Telescope builtin<CR>', desc = '[S]earch [S]elect Telescope' },
+      { '<leader>fw', '<cmd>Telescope grep_string<CR>', desc = '[S]earch current [W]ord' },
+      { '<leader>fg', '<cmd>Telescope live_grep<CR>', desc = '[S]earch by [G]rep' },
+      { '<leader>fd', '<cmd>Telescope diagnostics<CR>', desc = '[S]earch [D]iagnostics' },
+      { '<leader>fr', '<cmd>Telescope resume<CR>', desc = '[S]earch [R]esume' },
+      { '<leader>f.', '<cmd>Telescope oldfiles<CR>', desc = '[S]earch Recent Files ("." for repeat)' },
+      { '<leader><leader>', '<cmd>Telescope buffers<CR>', desc = '[ ] Find existing buffers' },
+      { '<leader>hs', '<cmd>Telescope git_status<CR>', desc = 'Opens up a Git status telescope window' },
     },
     config = function()
       require('telescope').setup {
@@ -273,18 +129,18 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
-      vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
+      -- vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      -- vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
+      -- vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[S]earch [F]iles' })
+      -- vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+      -- vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      -- vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      -- vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      -- vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
+      -- vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      -- vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      -- vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
+      -- vim.keymap.set('n', '<leader>hs', builtin.git_status, { desc = 'Opens up a Git status telescope window' })
 
       vim.keymap.set('n', '<leader>f/', function()
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
@@ -322,6 +178,7 @@ require('lazy').setup({
 
   {
     'neovim/nvim-lspconfig',
+    event = 'BufReadPost',
     dependencies = {
       { 'williamboman/mason.nvim', config = true },
       'williamboman/mason-lspconfig.nvim',
@@ -416,7 +273,7 @@ require('lazy').setup({
 
       local servers = {
         omnisharp = {
-          cmd = { 'dotnet', '/home/oem/Development/OmniSharp-Roslyn/OmniSharp.dll' },
+          cmd = { 'dotnet', '~/Dev/OmniSharp-Roslyn/OmniSharp.dll' },
           -- handlers = {
           --   ['textDocument/definition'] = require('omnisharp_extended').definition_handler,
           --   ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
@@ -425,14 +282,14 @@ require('lazy').setup({
           -- },
         },
         rust_analyzer = {},
-        gopls = {},
-        cssls = {},
+        -- gopls = {},
         texlab = {},
         zls = {},
         clangd = {},
         ols = {},
         glsl_analyzer = {},
-        pyright = {},
+        -- pyright = {},
+        ts_ls = {},
         lua_ls = {
           settings = {
             Lua = {
@@ -442,15 +299,7 @@ require('lazy').setup({
             },
           },
         },
-        julials = {
 
-          on_new_config = function(new_config, _)
-            local julia = vim.fn.expand '~/.julia/environments/nvim-lspconfig/bin/julia'
-            if require('lspconfig').util.path.is_file(julia) then
-              new_config.cmd[1] = julia
-            end
-          end,
-        },
       }
 
       require('mason').setup()
@@ -474,33 +323,38 @@ require('lazy').setup({
   },
   {
     'stevearc/conform.nvim',
-    config = function()
-      local conform = require 'conform'
-
-      conform.setup {
-        notify_on_error = true,
-        formatters_by_ft = {
-          lua = { 'stylua' },
-          javascript = { 'prettierd' },
-          typescript = { 'prettierd' },
-          typescriptreact = { 'prettierd' },
-          csharp = { 'csharpier' },
-          cpp = { 'clang_format' },
-          css = { 'prettied' },
-          python = { 'black' },
-          markdown = { 'markdownlint' },
-          go = { 'gofumpt' },
+    lazy = true,
+    keys = {
+      {
+        '<leader>fm',
+        function()
+          require('conform').format()
+        end,
+        desc = 'Format the current document',
+      },
+    },
+    opts = {
+      notify_on_error = true,
+      formatters_by_ft = {
+        lua = { 'stylua' },
+        javascript = { 'prettierd' },
+        typescript = { 'prettierd' },
+        typescriptreact = { 'prettierd' },
+        csharp = { 'csharpier' },
+        cpp = { 'clang_format' },
+        css = { 'prettied' },
+        python = { 'black' },
+        markdown = { 'markdownlint' },
+        go = { 'gofumpt' },
+      },
+      formatters = {
+        prettierd = {
+          env = {
+            PRETTIERD_DEFAULT_CONFIG = vim.fn.getcwd() .. '/.prettierrc.js',
+          },
         },
-      }
-
-      vim.keymap.set('n', '<leader>fm', conform.format, { desc = 'Format the current document' })
-
-      conform.formatters.prettierd = {
-        env = {
-          PRETTIERD_DEFAULT_CONFIG = vim.fn.getcwd() .. '/.prettierrc.js',
-        },
-      }
-    end,
+      },
+    },
   },
 
   {
@@ -555,17 +409,18 @@ require('lazy').setup({
       }
 
       -- Setup vim-dadbod completion
-      cmp.setup.filetype({ 'sql' }, {
-        sources = {
-          { name = 'vim-dadbod-completion' },
-          { name = 'buffer' },
-        },
-      })
+      -- cmp.setup.filetype({ 'sql' }, {
+      --   sources = {
+      --     { name = 'vim-dadbod-completion' },
+      --     { name = 'buffer' },
+      --   },
+      -- })
     end,
   },
   {
     'pmizio/typescript-tools.nvim',
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    ft = { 'ts', 'tsx', 'js', 'jsx' },
     opts = {},
   },
   -- {
@@ -590,11 +445,10 @@ require('lazy').setup({
     config = function()
       require('everforest').setup {
         transparent_background_level = 1,
-        background = "hard",
-        ui_contrast = "high",
+        background = 'hard',
+        ui_contrast = 'high',
       }
       vim.cmd.colorscheme 'everforest'
-
     end,
   },
   -- {
@@ -628,8 +482,12 @@ require('lazy').setup({
   --     vim.cmd.colorscheme 'eldritch'
   --   end,
   -- },
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
+  {
+    'folke/todo-comments.nvim',
+    event = 'BufReadPost',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
   {
     'echasnovski/mini.nvim',
     config = function()
@@ -645,6 +503,7 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    event = 'BufReadPre',
     build = ':TSUpdate',
     opts = {
       ensure_installed = { 'bash', 'c', 'html', 'lua', 'vim', 'vimdoc', 'diff', 'luadoc' },

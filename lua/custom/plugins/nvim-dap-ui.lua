@@ -2,8 +2,8 @@
 
 return {
   'rcarriga/nvim-dap-ui',
+  lazy = true,
   dependencies = {
-    'mfussenegger/nvim-dap',
     'nvim-neotest/nvim-nio',
   },
   commit = '5934302d63d1ede12c0b22b6f23518bb183fc972',
@@ -61,7 +61,7 @@ return {
     end, { desc = 'Debug: See last session result.' })
 
     vim.keymap.set('n', '<leader>de', "<cmd>require('dapui').eval()<CR>", { desc = 'Evaluate expression' })
-    vim.keymap.set('n', '<leader>dh', require('dap.ui.widgets').hover, { desc = 'Hover element' })
+    vim.keymap.set('n', '<leader>K', require('dap.ui.widgets').hover, { desc = 'Hover element' })
     vim.keymap.set('n', '<leader>dp', require('dap.ui.widgets').preview, { desc = 'Preview element' })
     vim.keymap.set('n', '<leader>df', "<cmd>require('dap.ui.widgets').float()<CR>", { desc = 'Float element' })
 

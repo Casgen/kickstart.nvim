@@ -3,16 +3,13 @@ return {
   dependencies = {
     'nvim-tree/nvim-web-devicons',
   },
-
-  config = function()
-    require('lualine').setup {
-      options = {
-        theme = 'everforest',
-      },
-      sections = {
-        lualine_b = { 'branch', 'diagnostics' },
-        lualine_c = { 'grapple', 'filename' },
-      },
-    }
-  end,
+  opts = {
+    options = {
+      theme = 'everforest',
+    },
+    sections = {
+      lualine_b = { 'branch', 'diagnostics' },
+      -- lualine_c = { 'grapple', 'filename' },
+    },
+  }
 }

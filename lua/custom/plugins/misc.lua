@@ -1,10 +1,13 @@
 return {
   {
     'tpope/vim-fugitive',
+    lazy = true,
+    cmd = 'Git'
   },
   {
     'ThePrimeagen/vim-be-good',
-    event = 'VimEnter',
+    lazy = true,
+    cmd = 'VimBeGood'
   },
   -- {
   --   'kwkarlwang/bufjump.nvim',

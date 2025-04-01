@@ -1,10 +1,68 @@
 return {
   'mfussenegger/nvim-dap',
+  lazy = true,
   dependencies = {
-    'rcarriga/nvim-dap-ui',
     'williamboman/mason.nvim',
+    'rcarriga/nvim-dap-ui',
     'jay-babu/mason-nvim-dap.nvim',
-    'leoluz/nvim-dap-go',
+  },
+  keys = {
+    {
+      '<F1>',
+      function()
+        require('dap').step_into()
+      end,
+      desc = 'Debug: Step Into',
+    },
+    {
+      '<F2>',
+      function()
+        require('dap').step_over()
+      end,
+      desc = 'Debug: Step Over',
+    },
+    {
+      '<F3>',
+      function()
+        require('dap').step_out()
+      end,
+      desc = 'Debug: Step Out',
+    },
+    {
+      '<F4>',
+      function()
+        require('dap').run_to_cursor()
+      end,
+      desc = 'Debug: Run to cursor',
+    },
+    {
+      '<F5>',
+      function()
+        require('dap').terminate()
+      end,
+      desc = 'Debug: Terminate session',
+    },
+    {
+      '<F6>',
+      function()
+        require('dap').continue()
+      end,
+      desc = 'Debug: Start/Continue',
+    },
+    {
+      '<leader>b',
+      function()
+        require('dap').toggle_breakpoint()
+      end,
+      desc = 'Debug: Toggle Breakpoint',
+    },
+    {
+      '<leader>B',
+      function()
+        require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+      end,
+      desc = 'Debug: Set Breakpoint With Condition',
+    },
   },
   config = function()
     local dap = require 'dap'
@@ -20,23 +78,11 @@ return {
       },
     }
 
-    -- Basic debbgging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
-    vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
-    vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
-    vim.keymap.set('n', '<F4>', dap.run_to_cursor, { desc = 'Debug: Run to cursor' })
-    vim.keymap.set('n', '<F5>', dap.terminate, { desc = 'Debug: Terminate session' })
-    vim.keymap.set('n', '<F6>', dap.continue, { desc = 'Debug: Start/Continue' })
-    vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
-    vim.keymap.set('n', '<leader>B', function()
-      dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    end, { desc = 'Debug: Set Breakpoint' })
-
     vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DiagnosticSignError', linehl = '', numhl = '' })
 
     dap.adapters.cppdbg = {
       type = 'executable',
-      command = '/home/oem/.local/share/nvim/mason/bin/OpenDebugAD7',
+      command = '/home/joseff/.local/share/nvim/mason/bin/OpenDebugAD7',
       id = 'cppdbg',
     }
 
@@ -50,14 +96,14 @@ return {
       type = 'server',
       port = '13000',
       executable = {
-        command = '/home/oem/.local/share/nvim/mason/bin/codelldb',
+        command = '/home/joseff/.local/share/nvim/mason/bin/codelldb',
         args = { '--port', '13000' },
       },
     }
 
     dap.adapters.coreclr = {
       type = 'executable',
-      command = '/home/oem/.local/share/nvim/mason/bin/netcoredbg',
+      command = '/home/joseff/.local/share/nvim/mason/bin/netcoredbg',
       args = { '--interpreter=vscode' },
     }
 
@@ -95,22 +141,45 @@ return {
     dap.configurations.odin = {
       {
         type = 'cppdbg',
-        name = 'Run Pacman',
+        name = 'Run Haversine (Generate Mode)',
         request = 'launch',
-        program = '${workspaceFolder}/build/pacman',
+        program = '${workspaceFolder}/build/haversine',
+        args = {
+          "--generate",
+          "10000",
+          "2078890407461",
+        },
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'cppdbg',
+        name = 'Run Haversine (Parse Mode)',
+        request = 'launch',
+        program = '${workspaceFolder}/build/haversine',
+        args = {
+          "--parse",
+          "pairs.json",
+        },
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'cppdbg',
+        name = 'Run Grappler',
+        request = 'launch',
+        program = '${workspaceFolder}/build/grappler',
         MIMode = 'gdb',
         args = {},
         cwd = '${workspaceFolder}',
       },
-      {
-        type = 'codelldb',
-        name = 'Run 8086-sim',
-        request = 'launch',
-        program = '${workspaceFolder}/build/8086sim',
-        preLaunchTask = 'odin build ./src/main.odin -file -debug -out:build/8086sim',
-        args = {},
-        cwd = '${workspaceFolder}',
-      },
+      -- {
+      --   type = 'codelldb',
+      --   name = 'Run 8086-sim',
+      --   request = 'launch',
+      --   program = '${workspaceFolder}/build/8086sim',
+      --   preLaunchTask = 'odin build ./src/main.odin -file -debug -out:build/8086sim',
+      --   args = {},
+      --   cwd = '${workspaceFolder}',
+      -- },
     }
 
     local aoc_bin_path = function()
@@ -129,10 +198,24 @@ return {
       -- },
       {
         type = 'codelldb',
-        name = 'Run Haversine',
+        name = 'Run Haversine (Pairs Mode)',
         request = 'launch',
         program = '${workspaceFolder}/zig-out/bin/haversine',
-        args = {},
+        args = {
+          "--parse",
+          "pairs.json"
+        },
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'codelldb',
+        name = 'Run Haversine (Generate Mode)',
+        request = 'launch',
+        program = '${workspaceFolder}/zig-out/bin/haversine',
+        args = {
+          "pairs.json",
+          "1238905929301",
+        },
         cwd = '${workspaceFolder}',
       },
       {
@@ -172,7 +255,7 @@ return {
     -- CPP debugger setup for the MeshAndTaskShaders project
     dap.configurations.cpp = {
       {
-        name = '(gdb) Launch Quiz',
+        name = '(gdb) Launch Cid2Code Parser',
         type = 'cppdbg',
         request = 'launch',
         program = '${workspaceFolder}/main',
@@ -305,10 +388,10 @@ return {
     }
 
     -- Install golang specific config
-    require('dap-go').setup {
-      delve = {
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
+    -- require('dap-go').setup {
+    --   delve = {
+    --     detached = vim.fn.has 'win32' == 0,
+    --   },
+    -- }
   end,
 }

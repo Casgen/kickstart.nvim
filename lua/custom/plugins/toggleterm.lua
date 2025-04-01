@@ -1,12 +1,13 @@
 return {
   'akinsho/toggleterm.nvim',
   version = '*',
-  config = function()
-    require('toggleterm').setup()
-
-    vim.keymap.set('n', '<A-i>', '<cmd>ToggleTerm size=40 dir=$(pwd) direction=float name=project<CR>', { desc = 'Opens a floating terminal' })
-  end,
+  keys = {
+    {"<A-i>", "<cmd>ToggleTerm<CR>", desc = 'Toggles the terminal window'}
+  },
   opts = {
     direction = 'float',
+    size = 40,
+    dir = '$(pwd)',
+    name = 'Terminal',
   },
 }

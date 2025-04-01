@@ -2,15 +2,15 @@ return {
   'epwalsh/obsidian.nvim',
   lazy = true,
   event = {
-    'BufReadPre /media/oem/MoreStuff/ObsidianVault/MyVault/**.md',
-    'BufNewFile /media/oem/MoreStuff/ObsidianVault/MyVault/**.md',
+    'BufReadPre /media/joseff/MoreStuff/ObsidianVault/MyVault/**.md',
+    'BufNewFile /media/joseff/MoreStuff/ObsidianVault/MyVault/**.md',
   },
   dependencies = {
     'nvim-lua/plenary.nvim',
   },
   config = function()
     require('obsidian').setup {
-      dir = '/media/oem/MoreStuff/ObsidianVault/MyVault',
+      dir = '/media/joseff/MoreStuff/ObsidianVault/MyVault',
       notes_subdir = 'Zettelkasten',
       completion = {
         nvim_cmp = true,
